@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vlc="clr-namespace:LibVLCSharp.Avalonia;assembly=LibVLCSharp.Avalonia"
+        x:Class="MediaPlayerApp.MainWindow"
+        Title="Exquisite Media Player"
+        Width="1000" Height="600"
+        Background="#1E1E2F">
+    <Window.Styles>
+        <Style Selector="Window">
+            <Setter Property="FontFamily" Value="Segoe UI, Arial"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+        </Style>
+        <Style Selector="Button">
+            <Setter Property="Background" Value="#3A3A5A"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="Button:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#4A4A6A"/>
+        </Style>
+        <Style Selector="Slider">
+            <Setter Property="Background" Value="#3A3A5A"/>
+            <Setter Property="Foreground" Value="#BB86FC"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+        </Style>
+    </Window.Styles>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <!-- Video View -->
+        <Border Grid.Row="0" Background="#000000">
+            <vlc:VideoView x:Name="VideoView"/>
+        </Border>
+        <!-- Pulse Wave Visualization (Hidden for Videos) -->
+        <Canvas x:Name="PulseWaveCanvas" Grid.Row="0" Background="#1E1E2F" IsVisible="False"/>
+        <!-- Playback Controls -->
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10" Spacing="10">
+            <!-- Seek Bar -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="CurrentTime" Grid.Column="0" Text="00:00" Margin="0,0,10,0"/>
+                <Slider x:Name="SeekSlider" Grid.Column="1" Minimum="0" Value="0"/>
+                <TextBlock x:Name="TotalTime" Grid.Column="2" Text="00:00" Margin="10,0,0,0"/>
+            </Grid>
+            <!-- Playback Buttons and Volume -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <!-- Playback Buttons -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                    <Button x:Name="PlayButton" Content="Play"/>
+                    <Button x:Name="PauseButton" Content="Pause"/>
+                    <Button x:Name="OpenButton" Content="Open File"/>
+                </StackPanel>
+                <!-- Volume Control -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" Margin="10,0">
+                    <TextBlock Text="Volume:" VerticalAlignment="Center"/>
+                    <Slider x:Name="VolumeSlider" Width="100" Minimum="0" Maximum="100" Value="50"/>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+        <!-- Settings Panel -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10" Spacing="10">
+            <TextBlock Text="Theme:" VerticalAlignment="Center"/>
+            <ComboBox x:Name="ThemeSelector" Width="150" SelectedIndex="0">
+                <ComboBoxItem>Dark</ComboBoxItem>
+                <ComboBoxItem>Light</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+    </Grid>
+</Window>
