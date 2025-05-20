@@ -52,7 +52,7 @@ namespace MediaPlayerApp
 
             string vlcPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "lib", "vlc",
                 OperatingSystem.IsWindows() ? "windows" : "linux");
-            _libVLC = new LibVLC("--no-xlib", $"--plugin-path={System.IO.Path.Combine(vlcPath, "plugins")}");
+            _libVLC = new LibVLC("--no-xlib"); // Removed --plugin-path
             _mediaPlayer = new MediaPlayer(_libVLC);
 
             // Initialize controls with null checks
@@ -162,33 +162,40 @@ namespace MediaPlayerApp
 
         private async Task PlayMedia(string filePath)
         {
-            using var media = new Media(_libVLC, new Uri($"file://{filePath}"));
-            _mediaPlayer.Media = media;
-            _mediaPlayer.Play();
+            try
+            {
+                using var media = new Media(_libVLC, new Uri($"file://{filePath}"));
+                _mediaPlayer.Media = media;
+                _mediaPlayer.Play();
 
-            // Determine if media is audio
-            _isAudio = filePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
-                       filePath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||
-                       filePath.EndsWith(".flac", StringComparison.OrdinalIgnoreCase);
-            _videoView.IsVisible = !_isAudio;
-            _pulseWaveCanvas.IsVisible = _isAudio;
-            _fullScreenButton.IsVisible = !_isAudio;
+                // Determine if media is audio
+                _isAudio = filePath.EndsWith(".mp3", StringComparison.OrdinalIgnoreCase) ||
+                           filePath.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) ||
+                           filePath.EndsWith(".flac", StringComparison.OrdinalIgnoreCase);
+                _videoView.IsVisible = !_isAudio;
+                _pulseWaveCanvas.IsVisible = _isAudio;
+                _fullScreenButton.IsVisible = !_isAudio;
 
-            // Update media info
-            await media.Parse(MediaParseOptions.ParseLocal);
-            _mediaInfo.Text = $"Title: {media.Meta(MetadataType.Title) ?? System.IO.Path.GetFileName(filePath)}";
-            _playPauseButton.Content = "Pause";
-            _playlist.SelectedIndex = _currentMediaIndex;
+                // Update media info
+                await media.Parse(MediaParseOptions.ParseLocal);
+                _mediaInfo.Text = $"Title: {media.Meta(MetadataType.Title) ?? System.IO.Path.GetFileName(filePath)}";
+                _playPauseButton.Content = "Pause";
+                _playlist.SelectedIndex = _currentMediaIndex;
+            }
+            catch (Exception ex)
+            {
+                _mediaInfo.Text = $"Error playing media: {ex.Message}";
+            }
         }
 
-        private void SeekSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+        private void SeekSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             if (!_isDraggingSeekSlider || _mediaPlayer.Media == null) return;
             float position = (float)(e.NewValue / _mediaPlayer.Length);
             _mediaPlayer.Position = position;
         }
 
-        private void VolumeSlider_ValueChanged(object? sender, RangeBaseValueChangedEventArgs e)
+        private void VolumeSlider_ValueChanged(object? sender, Avalonia.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         {
             _mediaPlayer.Volume = (int)e.NewValue;
         }
@@ -334,8 +341,8 @@ namespace MediaPlayerApp
             }
 
             // Update Time Display
-            _currentTime.Text = TimeSpan.FromMilliseconds(_mediaPlayer.Time).ToString(@"mm\:ss");
-            _totalTime.Text = TimeSpan.FromMilliseconds(_mediaPlayer.Length).ToString(@"mm\:ss");
+            _currentTime.Text = TimeSpan.FromMilliseconds(_mediaPlayer.Time).ToString(@"mm:ss");
+            _totalTime.Text = TimeSpan.FromMilliseconds(_mediaPlayer.Length).ToString(@"mm:ss");
 
             // Update Pulse Wave Visualization for Audio
             if (_isAudio)
